@@ -4,6 +4,7 @@ from pathlib import Path
 
 from db.MongoDB import MongoDB
 from db.dao import DAO
+from exceptions.exceptions import TokenException
 
 @dataclass
 class Token:
@@ -35,10 +36,10 @@ def init_dao(db: MongoDB) -> DAO:
 
 def load_config(path: str | None = None) -> Config:
     try:
-        token_key = os.environ.get('BOT_API_KEY')
+        token_key = os.environ['BOT_API_KEY']
     except KeyError:
-        print("Cannot find BOT_API_KEY. Please provide it via env")
-        raise
+        raise TokenException("Cannot find BOT_API_KEY. Please provide it via env")
+
     return Config(token=Token(token=token_key), db_connection_string="mongodb://127.0.0.1:27017")
 
 
