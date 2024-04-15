@@ -1,20 +1,24 @@
-import json
 import asyncio
 from aiogram import Bot, Dispatcher
-from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 from handlers import callbacks, commands
+from config.config import init_db, init_dao, load_config, Config
 
-from db.dao import DAO
 
 
+
+async def create_database(config: Config):
+    db = await init_db(config.db_connection_string)
+    dao = init_dao(db)
+    await dao.configure(config.db_config_file, config.db_data_file)
 
 
 async def main():
-    bot = Bot(token=API_TOKEN)
+    config = load_config()
+    await create_database(config)
+    bot = Bot(token=config.token.token)
     dp = Dispatcher()
     dp.include_router(commands.router)
     dp.include_router(callbacks.router)
-    dp.startup.register(on_startup)
     await dp.start_polling(bot)
 
 
